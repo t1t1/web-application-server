@@ -23,13 +23,28 @@ public class RequestHandler extends Thread {
 		
 		try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
 			// TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-			DataOutputStream dos = new DataOutputStream(out);
-			byte[] body = "Hello World".getBytes();
-			response200Header(dos, body.length);
-			responseBody(dos, body);
+			response(out);
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
+	}
+
+	/**
+	 * @param dos
+	 */
+	private void response(OutputStream out) {
+		DataOutputStream dos = new DataOutputStream(out);
+		byte[] body = getBody();
+		response200Header(dos, body.length);
+		responseBody(dos, body);
+	}
+
+	/**
+	 * @return
+	 */
+	private byte[] getBody() {
+		byte[] body = "Hello World".getBytes();
+		return body;
 	}
 
 	private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
