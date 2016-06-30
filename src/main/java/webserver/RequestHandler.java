@@ -42,8 +42,8 @@ public class RequestHandler extends Thread {
 		DataOutputStream dos = new DataOutputStream(out);
 		byte[] body;
 		try {
-			String fileName = getFileName(in);
-			body = getBody(fileName);
+			String url = getUrl(in);
+			body = getBody(url);
 			response200Header(dos, body.length);
 			responseBody(dos, body);
 		} catch (IOException e) {
@@ -56,45 +56,31 @@ public class RequestHandler extends Thread {
 	 * @param in
 	 * @return
 	 */
-	private String getFileName(InputStream in) {
-		String rtnStr = "";
+	private String getUrl(InputStream in) {
+		String url = "";
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 		try {
 			String line;
 			while ( (line = br.readLine()) != null) {
-				System.out.println(line);
+				// TODO 하드코딩 같음
 				if (line.indexOf("HTTP/1.1") > -1) {
-					String[] tokens = line.split(" ");
-					rtnStr = tokens[1];
-					System.out.println(rtnStr);
+					// TODO 하드코딩 같음
+					url = line.split(" ")[1];
 				}
-				if (line.isEmpty()) {
-					break;
-				}
+				if (line.isEmpty()) break;
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(rtnStr);
-		return rtnStr;
+		return url;
 	}
 
 	/**
 	 * @return
 	 * @throws IOException 
 	 */
-	private byte[] getBody(String fileName) throws IOException {
-/*		
-		FileInputStream fis = new FileInputStream("./" + fileName);
-		InputStreamReader r = new InputStreamReader(fis);
-		BufferedReader br = new BufferedReader(r);
-		while (br.readLine() != null) {
-			String line = br.readLine();
-			System.out.println(line);
-		}
-*/		
-		return Files.readAllBytes(new File("./webapp" + fileName).toPath());
+	private byte[] getBody(String url) throws IOException {
+		return Files.readAllBytes(new File("./webapp" + url).toPath());
 	}
 
 	private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
