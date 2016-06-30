@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +81,21 @@ public class RequestHandler extends Thread {
 	 * @throws IOException 
 	 */
 	private byte[] getBody(String url) throws IOException {
-		return Files.readAllBytes(new File("./webapp" + url).toPath());
+		return Files.readAllBytes(getFile(url));
+	}
+
+	/**
+	 * @param url
+	 * @return
+	 */
+	private Path getFile(String url) {
+		File file = new File("./webapp" + url);
+		Path path = null;
+		// TODO 파일 없을 땐 어떻게 response?
+		if (file.isFile()) {
+			path = file.toPath();
+		}
+		return path;
 	}
 
 	private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
