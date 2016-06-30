@@ -89,23 +89,25 @@ public class RequestHandler extends Thread {
 		log.debug(line);
 		String url;
 		url = line.split(" ")[1];
+		
+		getQueryString(url);
+		
+		return url;
+	}
+
+	/**
+	 * @param url
+	 */
+	private void getQueryString(String url) {
 		String[] params = (url.substring(url.indexOf("?")+1)).split("&");
 		
-		String password;
-		String name;
-		String email;
-		
 		Map<String, String> map = new HashMap<String, String>();
-		
 		for (String param : params) {
 			String[] keyVal = param.split("=");
 			map.put(keyVal[0], keyVal[1]);
 		}
-		
 		User user = new User(map.get("userId"), map.get("userId"), map.get("userId"), map.get("userId"));
 		log.debug(user.toString());
-		
-		return url;
 	}
 
 	/**
