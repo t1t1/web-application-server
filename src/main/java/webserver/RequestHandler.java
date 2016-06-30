@@ -12,6 +12,10 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+
+import model.User;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,15 +68,43 @@ public class RequestHandler extends Thread {
 			String line;
 			while ( (line = br.readLine()) != null) {
 				// TODO 하드코딩 같음
+				log.debug(line);
 				if (line.indexOf("HTTP/1.1") > -1) {
 					// TODO 하드코딩 같음
-					url = line.split(" ")[1];
+					url = getRealUrl(line);
 				}
 				if (line.isEmpty()) break;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return url;
+	}
+
+	/**
+	 * @param line
+	 * @return
+	 */
+	private String getRealUrl(String line) {
+		log.debug(line);
+		String url;
+		url = line.split(" ")[1];
+		String[] params = (url.substring(url.indexOf("?")+1)).split("&");
+		
+		String password;
+		String name;
+		String email;
+		
+		Map<String, String> map = new HashMap<String, String>();
+		
+		for (String param : params) {
+			String[] keyVal = param.split("=");
+			map.put(keyVal[0], keyVal[1]);
+		}
+		
+		User user = new User(map.get("userId"), map.get("userId"), map.get("userId"), map.get("userId"));
+		log.debug(user.toString());
+		
 		return url;
 	}
 
