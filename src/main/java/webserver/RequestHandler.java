@@ -3,8 +3,6 @@ package webserver;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -45,9 +43,10 @@ public class RequestHandler extends Thread {
 	 */
 	private void response(InputStream in, OutputStream out) {
 		DataOutputStream dos = new DataOutputStream(out);
+		String url;
 		byte[] body;
 		try {
-			String url = getUrl(in);
+			url = getUrl(in);
 			body = getBody(url);
 			response200Header(dos, body.length);
 			responseBody(dos, body);
@@ -65,13 +64,15 @@ public class RequestHandler extends Thread {
 		String url = "";
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 		try {
+			int rowCnt = 0;
 			String line;
 			while ( (line = br.readLine()) != null) {
+				rowCnt++;
 				// TODO 하드코딩 같음
 				log.debug(line);
 				if (line.indexOf("HTTP/1.1") > -1) {
-					// TODO 하드코딩 같음
 					url = getRealUrl(line);
+					log.debug(url);
 				}
 				if (line.isEmpty()) break;
 			}
@@ -86,9 +87,10 @@ public class RequestHandler extends Thread {
 	 * @return
 	 */
 	private String getRealUrl(String line) {
-		log.debug(line);
 		String url;
+		// TODO 하드코딩 같음
 		url = line.split(" ")[1];
+		log.debug(line, " ---> ", url);
 		
 		getQueryString(url);
 		
@@ -104,7 +106,9 @@ public class RequestHandler extends Thread {
 		Map<String, String> map = new HashMap<String, String>();
 		for (String param : params) {
 			String[] keyVal = param.split("=");
-			map.put(keyVal[0], keyVal[1]);
+			if (keyVal.length > 1) {
+				map.put(keyVal[0], keyVal[1]);
+			}
 		}
 		User user = new User(map.get("userId"), map.get("userId"), map.get("userId"), map.get("userId"));
 		log.debug(user.toString());
@@ -123,12 +127,12 @@ public class RequestHandler extends Thread {
 	 * @return
 	 */
 	private Path getFile(String url) {
-		File file = new File("./webapp" + url);
 		Path path = null;
-		// TODO 파일 없을 땐 어떻게 response?
-		if (file.isFile()) {
-			path = file.toPath();
+		File file = new File("./webapp" + url);
+		if (!file.isFile()) {
+			file = new File("./webapp" + "/error404.html");
 		}
+		path = file.toPath();
 		return path;
 	}
 
